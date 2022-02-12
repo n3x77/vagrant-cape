@@ -198,8 +198,8 @@
     - kernel/mm/transparent_hugepage/enabled = never
     - kernel/mm/transparent_hugepage/defrag = never
 
-- name: Inventory system services facts
-  service_facts:
+# - name: Inventory system services facts
+  # service_facts:
 
 - name: Stop and Disable built-in MongDB service
   systemd:
@@ -246,8 +246,9 @@
     name: psycopg2-binary
     state: present
 
-- name: Inventory system services
-  service_facts: null
+# TODO: Check if this is needed this seem corrputed in Ansible 2.9 together with Ubuntu 20.04
+# - name: Inventory system services
+  # service_facts: null
 
 - name: Start PostgresSQL service
   systemd:
