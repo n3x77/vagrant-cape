@@ -11,3 +11,4 @@
     - { role: nginx}
     - { role: suricata}
     - { role: cape}
+    - { role: kvm}
