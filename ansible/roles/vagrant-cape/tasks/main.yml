@@ -207,7 +207,7 @@
     state: stopped
     enabled: false
     daemon_reload: true
-  when: '"mongod.service" in ansible_facts.services | flatten'
+  # when: '"mongod.service" in ansible_facts.services | flatten'
 
 - name: Delete built-in MongDB service unit file
   file:
@@ -254,8 +254,8 @@
   systemd:
     name: postgresql.service
     state: started
-  when: ansible_facts.services['postgresql.service'] is defined
-  register: postgresql_service_start
+  # when: ansible_facts.services['postgresql.service'] is defined
+  # register: postgresql_service_start
 
 - name: Configure PostgresSQL for CAPE
   block:
