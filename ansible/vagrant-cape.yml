@@ -9,3 +9,4 @@
     - { role: volatility}
     - { role: maxmind}
     - { role: nginx}
+    - { role: suricata}
