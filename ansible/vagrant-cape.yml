@@ -10,3 +10,4 @@
     - { role: maxmind}
     - { role: nginx}
     - { role: suricata}
+    - { role: cape}
