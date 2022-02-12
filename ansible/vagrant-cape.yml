@@ -6,3 +6,4 @@
     - { role: vagrant-cape}
     - { role: clamav}
     - { role: capa}
+    - { role: volatility}
