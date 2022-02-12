@@ -152,125 +152,184 @@
     state: present
     validate_certs: true
 
-# - name: Add MongoDB repository
-#   apt_repository:
-#     repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/{{ mongodb_version }} multiverse"
-#     state: present
-#     filename: "monogdb-org-{{ mongodb_version }}"
-#     update_cache: true
+- name: Add MongoDB repository
+  apt_repository:
+    repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/{{ mongodb_version }} multiverse"
+    state: present
+    filename: "monogdb-org-{{ mongodb_version }}"
+    update_cache: true
 
-# # Consider moving to requirements.yml
-# - name: Install PyMongo
-#   pip:
-#     name: pymongo
-#     state: present
-#     extra_args: --user
+# Consider moving to requirements.yml
+- name: Install PyMongo
+  pip:
+    name: pymongo
+    state: present
+    extra_args: --user
 
-# - name: Install MongoDB
-#   apt:
-#     name: mongodb-org
-#     state: present
+- name: Install MongoDB
+  apt:
+    name: mongodb-org
+    state: present
 
-# - name: Create MongoDB data directory
-#   file:
-#     path: "{{ mongodb_db_main_path }}"
-#     state: directory
-#     owner: mongodb
-#     group: mongodb
+- name: Create MongoDB data directory
+  file:
+    path: "{{ mongodb_db_main_path }}"
+    state: directory
+    owner: mongodb
+    group: mongodb
 
-# - name: Create MongoDB db directories
-#   file:
-#     path: "{{ item }}"
-#     state: directory
-#     owner: mongodb
-#     group: mongodb
-#   loop: "{{ mongodb_db_paths }}"
+- name: Create MongoDB db directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: mongodb
+    group: mongodb
+  loop: "{{ mongodb_db_paths }}"
 
-# - name: Disable transparent hugepage
-#   lineinfile:
-#     path: /etc/sysfs.conf
-#     line: "{{ item }}"
-#     create: true
-#     owner: root
-#     group: root
-#     mode: 0644
-#   loop:
-#     - kernel/mm/transparent_hugepage/enabled = never
-#     - kernel/mm/transparent_hugepage/defrag = never
+- name: Disable transparent hugepage
+  lineinfile:
+    path: /etc/sysfs.conf
+    line: "{{ item }}"
+    create: true
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - kernel/mm/transparent_hugepage/enabled = never
+    - kernel/mm/transparent_hugepage/defrag = never
 
-# - name: Inventory system services facts
-#   service_facts:
+- name: Inventory system services facts
+  service_facts:
 
-# - name: Stop and Disable built-in MongDB service
-#   systemd:
-#     name: mongod.service
-#     state: stopped
-#     enabled: false
-#     daemon_reload: true
-#   when: '"mongod.service" in ansible_facts.services | flatten'
+- name: Stop and Disable built-in MongDB service
+  systemd:
+    name: mongod.service
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  when: '"mongod.service" in ansible_facts.services | flatten'
 
-# - name: Delete built-in MongDB service unit file
-#   file:
-#     path: /lib/systemd/system/mongod.service
-#     state: absent
+- name: Delete built-in MongDB service unit file
+  file:
+    path: /lib/systemd/system/mongod.service
+    state: absent
 
-# - name: Template MongoDB systemd unit file
-#   template:
-#     src: mongodb.service.j2
-#     dest: /lib/systemd/system/mongodb.service
-#   notify:
-#     - Restart and enable MongoDB service
+- name: Template MongoDB systemd unit file
+  template:
+    src: mongodb.service.j2
+    dest: /lib/systemd/system/mongodb.service
+  notify:
+    - Restart and enable MongoDB service
 
 
-# - name: Add PostgresSQL reposoitory GPG key
-#   apt_key:
-#     url: "{{ postgres_repo_key }}"
-#     state: present
+- name: Add PostgresSQL reposoitory GPG key
+  apt_key:
+    url: "{{ postgres_repo_key }}"
+    state: present
 
-# - name: Add PostgresSQL repository
-#   apt_repository:
-#     repo: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
-#     state: present
-#     filename: pgdg
-#     update_cache: true
+- name: Add PostgresSQL repository
+  apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+    filename: pgdg
+    update_cache: true
 
-# - name: Install PostgresSQL database
-#   apt:
-#     name:
-#       - postgresql
-#       - postgresql-client
-#     state: present
+- name: Install PostgresSQL database
+  apt:
+    name:
+      - postgresql
+      - postgresql-client
+    state: present
 
-# - name: Install psycopg2
-#   pip:
-#     name: psycopg2-binary
-#     state: present
+- name: Install psycopg2
+  pip:
+    name: psycopg2-binary
+    state: present
 
-# - name: Inventory system services
-#   service_facts: null
+- name: Inventory system services
+  service_facts: null
 
-# - name: Start PostgresSQL service
-#   systemd:
-#     name: postgresql.service
-#     state: started
-#   when: ansible_facts.services['postgresql.service'] is defined
-#   register: postgresql_service_start
+- name: Start PostgresSQL service
+  systemd:
+    name: postgresql.service
+    state: started
+  when: ansible_facts.services['postgresql.service'] is defined
+  register: postgresql_service_start
 
-# - name: Configure PostgresSQL for CAPE
-#   block:
-#     - name: Create CAPE PostgresSQL database
-#       postgresql_db:
-#         name: "{{ cape_db_name }}"
-#         state: present
-#         encoding: UTF-8
-#       become_user: postgres
+- name: Configure PostgresSQL for CAPE
+  block:
+    - name: Create CAPE PostgresSQL database
+      postgresql_db:
+        name: "{{ cape_db_name }}"
+        state: present
+        encoding: UTF-8
+      become_user: postgres
 
-#     - name: Create CAPE PostgresSQL database user and grant permissions
-#       postgresql_user:
-#         name: "{{ cape_user }}"
-#         password: "{{ cape_pass }}"
-#         db: "{{ cape_db_name }}"
-#         priv: "ALL"
-#         expires: infinity
-#       become_user: postgres
-#   when: postgresql_service_start is success
+    - name: Create CAPE PostgresSQL database user and grant permissions
+      postgresql_user:
+        name: "{{ cape_user }}"
+        password: "{{ cape_pass }}"
+        db: "{{ cape_db_name }}"
+        priv: "ALL"
+        expires: infinity
+      become_user: postgres
+  when: postgresql_service_start is success
+
+- name: Check if Yara is installed
+  stat:
+    path: "{{ yara_default_install_dir }}/yara"
+  register: yara_is_installed
+
+- name: Check Yara version
+  command:
+    cmd: "{{ yara_default_install_dir }}/yara --version"
+  register: yara_installed_version
+  changed_when: false
+  when: yara_is_installed.stat is defined and yara_is_installed.stat.exists | bool
+
+- name: Download and Install Yara
+  block:
+    - name: Download Yara sources
+      git:
+        repo: "{{ yara_repo_rul }}"
+        dest: "{{ yara_source_code_dir }}"
+        version: "v{{ yara_release_version }}"
+
+    - name: Bootstrap Yara source code
+      command:
+        cmd: ./bootstrap.sh
+        chdir: "{{ yara_source_code_dir }}"
+        creates: "{{ yara_source_code_dir }}/configure"
+
+    - name: Configure Yara source code
+      command:
+        cmd: "./configure {{ ['--'] | product(yara_config_options) | map('join') | join(' ') }}"
+        chdir: "{{ yara_source_code_dir }}"
+        creates: "{{ yara_source_code_dir }}/config.log"
+
+    - name: Build Yara source code
+      make:
+        chdir: "{{ yara_source_code_dir }}"
+
+    - name: Install Yara
+      make:
+        chdir: "{{ yara_source_code_dir }}"
+        target: install
+  when: (yara_is_installed.stat is defined and not yara_is_installed.stat.exists | bool) or 
+        yara_installed_version.stdout is defined and yara_release_version > yara_installed_version.stdout
+
+- name: Download and install Yara-Python
+  block:
+    - name: Clone Yara-Python repository
+      git:
+        repo: "{{ yara_python_repo_url }}"
+        dest: "{{ yara_python_source_code_dir }}"
+        recursive: true
+        version: "v{{ yara_release_version }}"
+
+    - name: Install Yara-Python
+      pip:
+        name: yara-python
+        state: present
+        executable: pip3
+        extra_args: "--no-index --find-links=file:///{{ yara_python_source_code_dir }}"

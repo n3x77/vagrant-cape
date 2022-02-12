@@ -7,3 +7,5 @@
     - { role: clamav}
     - { role: capa}
     - { role: volatility}
+    - { role: maxmind}
+    - { role: nginx}
